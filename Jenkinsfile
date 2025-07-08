@@ -63,9 +63,8 @@ pipeline {
             steps {
                 script {
                     echo "Running unit tests..."
-                    // Explicitly call pytest from the virtual environment's bin directory
                     sh '''#!/bin/bash -ex
-                        ./venv/bin/pytest
+                        ./venv/bin/pytest # This is correct, keep this!
                     '''
                 }
             }
