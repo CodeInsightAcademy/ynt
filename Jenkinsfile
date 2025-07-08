@@ -100,20 +100,20 @@ pipeline {
         }
 
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    echo "Building Docker image for ${APP_NAME}:${env.BUILD_NUMBER}..."
-                    // Ensure your Dockerfile is correctly set up for your Python app.
-                    // Example: Dockerfile in the root of the project.
-                    docker.build("${APP_NAME}:${env.BUILD_NUMBER}", ".")
-                    // Optionally tag with 'latest' for main branch
-                    if (env.BRANCH_NAME == 'main') {
-                        docker.tag("${APP_NAME}:${env.BUILD_NUMBER}", "${APP_NAME}:latest")
-                    }
-                }
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             echo "Building Docker image for ${APP_NAME}:${env.BUILD_NUMBER}..."
+        //             // Ensure your Dockerfile is correctly set up for your Python app.
+        //             // Example: Dockerfile in the root of the project.
+        //             docker.build("${APP_NAME}:${env.BUILD_NUMBER}", ".")
+        //             // Optionally tag with 'latest' for main branch
+        //             if (env.BRANCH_NAME == 'main') {
+        //                 docker.tag("${APP_NAME}:${env.BUILD_NUMBER}", "${APP_NAME}:latest")
+        //             }
+        //         }
+        //     }
+        // }
 
         // stage('Publish Docker Image (Optional)') {
         //     when {
@@ -140,20 +140,20 @@ pipeline {
         //     }
         // }
 
-        stage('Deploy to Staging (for DAST)') {
-            steps {
-                script {
-                    echo "Deploying application to staging environment for DAST..."
+        // stage('Deploy to Staging (for DAST)') {
+        //     steps {
+        //         script {
+        //             echo "Deploying application to staging environment for DAST..."
                     
-                    sh "echo 'Simulating deployment of ${APP_NAME}:${env.BUILD_NUMBER} to staging...'"
-                    sh "sleep 30" // Give the application time to start up
+        //             sh "echo 'Simulating deployment of ${APP_NAME}:${env.BUILD_NUMBER} to staging...'"
+        //             sh "sleep 30" // Give the application time to start up
 
-                    // **Define the URL ZAP will scan**
-                    env.STAGING_APP_URL = "http://localhost:5000" // **CRITICAL: CHANGE THIS TO YOUR ACTUAL STAGING URL**
-                    echo "Application deployed to staging URL: ${env.STAGING_APP_URL}"
-                }
-            }
-        }
+        //             // **Define the URL ZAP will scan**
+        //             env.STAGING_APP_URL = "http://localhost:5000" // **CRITICAL: CHANGE THIS TO YOUR ACTUAL STAGING URL**
+        //             echo "Application deployed to staging URL: ${env.STAGING_APP_URL}"
+        //         }
+        //     }
+        // }
 
         stage('DAST - OWASP ZAP Scan') {
             steps {
