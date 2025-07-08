@@ -29,7 +29,7 @@ pipeline {
             steps {
                 script {
                     echo "Checking out SCM from ${env.BRANCH_NAME}..."
-                    git branch: env.BRANCH_NAME, url: 'https://github.com/your-org/your-repo.git' // Replace with your repo
+                    git branch: env.BRANCH_NAME, url: 'https://github.com/CodeInsightAcademy/ynt.git' // Replace with your repo
                 }
             }
         }
