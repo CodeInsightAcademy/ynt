@@ -63,16 +63,15 @@ pipeline {
             steps {
                 script {
                     echo "Running unit tests..."
-                    // Example for Python with pytest
-                    sh 'pytest'
-                    // If pytest generates JUnit XML reports, publish them
-                    junit '**/test-results/*.xml' // Adjust path if different
+                    // Explicitly call pytest from the virtual environment's bin directory
+                    sh '''#!/bin/bash -ex
+                        ./venv/bin/pytest
+                    '''
                 }
             }
             post {
                 failure {
-                    // Fail the pipeline immediately if unit tests fail
-                    error('Unit tests failed. Aborting pipeline.')
+                    error 'Unit tests failed. Aborting pipeline.'
                 }
             }
         }
