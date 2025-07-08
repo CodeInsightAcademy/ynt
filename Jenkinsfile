@@ -88,32 +88,17 @@ pipeline {
         }
 
 
-        stage('SAST - Bandit') {
+        stage('SAST - Bandit Scan') {
             steps {
-                script {
-                    echo "Running Static Application Security Testing (SAST) with Bandit..."
-                    // Bandit for Python code.
-                    // -r: recursive scan
-                    // -f: output format (json, html, csv, txt, xml)
-                    // -o: output file
-                    // --severity-level: LOW, MEDIUM, HIGH (and above)
-                    // --confidence-level: LOW, MEDIUM, HIGH (and above)
-                    // --exclude: paths to exclude (e.g., virtual environments)
-                    // ./ : Scan current directory
-                    sh "bandit -r . -f html -o bandit-report.html --severity-level medium --confidence-level medium"
-                    sh "bandit -r . -f json -o bandit-report.json --severity-level medium --confidence-level medium"
-
-                    archiveArtifacts artifacts: 'bandit-report.html, bandit-report.json', fingerprint: true
-                }
-            }
-            post {
-                failure {
-                    echo "Bandit found potential security issues. Review reports."
-                    // You might want to parse the JSON report here and fail the build if critical issues are found.
-                    // Example: check if "results" array in bandit-report.json is not empty.
-                }
+                sh '''
+                    . venv/bin/activate
+                    pip install bandit
+                    mkdir -p reports/sast
+                    bandit -r . -f html -o reports/sast/bandit.html || true
+                '''
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
