@@ -9,7 +9,7 @@
 
 // Define global environment variables
 def ZAP_SCAN_TIMEOUT = 600 // seconds
-def APP_NAME = "my-python-web-app" // Replace with your application name
+def APP_NAME = "devsecops" // Replace with your application name
 def DOCKER_REGISTRY = "your-docker-registry.com" // e.g., docker.io, ghcr.io (optional, for publishing image)
 def DOCKER_REGISTRY_CREDENTIALS_ID = "your-docker-registry-credentials" // Jenkins Credentials ID (optional)
 def NVD_API_KEY_CREDENTIALS_ID = "nvd-api-key" // Jenkins Secret Text Credential for NVD API Key (highly recommended)
@@ -28,8 +28,10 @@ pipeline {
         stage('Checkout SCM') {
             steps {
                 script {
-                    echo "Checking out SCM from ${env.BRANCH_NAME}..."
-                    git branch: env.BRANCH_NAME, url: 'https://github.com/CodeInsightAcademy/ynt.git' // Replace with your repo
+                   
+                git 'https://github.com/CodeInsightAcademy/ynt.git' // Replace with your repo
+            
+
                 }
             }
         }
