@@ -115,47 +115,41 @@ pipeline {
             }
         }
 
-        stage('Publish Docker Image (Optional)') {
-            when {
-                // Only publish for main branch or on tags, if you have a release strategy
-                branch 'main'
-                // OR: expression { return env.BRANCH_NAME == 'main' || env.TAG_NAME != null }
-            }
-            steps {
-                script {
-                    if (DOCKER_REGISTRY_CREDENTIALS_ID) {
-                        echo "Publishing Docker image to ${DOCKER_REGISTRY}..."
-                        withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                            sh "docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                            sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}"
-                            if (env.BRANCH_NAME == 'main') {
-                                sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:latest"
-                            }
-                            sh "docker logout ${DOCKER_REGISTRY}"
-                        }
-                    } else {
-                        echo "DOCKER_REGISTRY_CREDENTIALS_ID not set. Skipping Docker image publish."
-                    }
-                }
-            }
-        }
+        // stage('Publish Docker Image (Optional)') {
+        //     when {
+        //         // Only publish for main branch or on tags, if you have a release strategy
+        //         branch 'main'
+        //         // OR: expression { return env.BRANCH_NAME == 'main' || env.TAG_NAME != null }
+        //     }
+        //     steps {
+        //         script {
+        //             if (DOCKER_REGISTRY_CREDENTIALS_ID) {
+        //                 echo "Publishing Docker image to ${DOCKER_REGISTRY}..."
+        //                 withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+        //                     sh "docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+        //                     sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}"
+        //                     if (env.BRANCH_NAME == 'main') {
+        //                         sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:latest"
+        //                     }
+        //                     sh "docker logout ${DOCKER_REGISTRY}"
+        //                 }
+        //             } else {
+        //                 echo "DOCKER_REGISTRY_CREDENTIALS_ID not set. Skipping Docker image publish."
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Deploy to Staging (for DAST)') {
             steps {
                 script {
                     echo "Deploying application to staging environment for DAST..."
-                    // **IMPORTANT**: Replace this with your actual deployment logic.
-                    // This could be kubectl, ansible, docker-compose, etc.
-                    // The goal is to make the application accessible via a URL.
-
-                    // Example: Running with Docker Compose (simplified)
-                    // sh 'docker-compose -f docker-compose.staging.yml up -d'
-                    // For a real deployment, this would typically involve pushing to a K8s cluster, etc.
+                    
                     sh "echo 'Simulating deployment of ${APP_NAME}:${env.BUILD_NUMBER} to staging...'"
                     sh "sleep 30" // Give the application time to start up
 
                     // **Define the URL ZAP will scan**
-                    env.STAGING_APP_URL = "http://localhost:8080" // **CRITICAL: CHANGE THIS TO YOUR ACTUAL STAGING URL**
+                    env.STAGING_APP_URL = "http://localhost:5000" // **CRITICAL: CHANGE THIS TO YOUR ACTUAL STAGING URL**
                     echo "Application deployed to staging URL: ${env.STAGING_APP_URL}"
                 }
             }
@@ -165,16 +159,9 @@ pipeline {
             steps {
                 script {
                     echo "Running Dynamic Application Security Testing (DAST) with OWASP ZAP..."
-                    // Running ZAP via Docker for ease of setup and consistent environment.
-                    // Ensure the Jenkins agent can run Docker commands.
-                    // The ZAP container needs to access the staging application.
-                    // If ZAP is on a different network, ensure network connectivity.
-                    // For local development, 'host' network mode or direct IP might be needed.
-
+                   
                     withCredentials([string(credentialsId: ZAP_API_KEY_CREDENTIALS_ID, variable: 'ZAP_API_KEY')]) {
-                        // Start ZAP in daemon mode. Using a trusted ZAP container.
-                        // Expose ZAP's API port (8080) and optionally a report directory.
-                        sh "docker run --rm -d -p 8080:8080 --name zap -e ZAP_API_KEY=${ZAP_API_KEY} owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0"
+                         sh "docker run --rm -d -p 8080:8080 --name zap -e ZAP_API_KEY=${ZAP_API_KEY} owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0"
 
                         sh 'sleep 15' // Give ZAP daemon time to fully start
 
