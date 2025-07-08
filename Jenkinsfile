@@ -78,29 +78,29 @@ pipeline {
             steps {
                 script {
                     echo "Running Software Composition Analysis (SCA) with OWASP Dependency-Check..."
-                    withCredentials([string(credentialsId: NVD_API_KEY_CREDENTIALS_ID, variable: 'NVD_API_KEY')]) {
-                        // The `dependency-check` command-line tool.
-                        // Ensure it's installed and in PATH, or specify full path.
-                        // `--noupdate` can be used for faster builds if you manage NVD updates separately.
-                        // `--format ALL` generates multiple report types.
-                        // `--failOnCVSS 7.0` can be added to fail the build on a specific CVSS score.
-                        sh "dependency-check " +
-                           "--project \"${APP_NAME}\" " +
-                           "--scan . " +
-                           "--format HTML " +
-                           "--out \"dependency-check-report\" " +
-                           "--enableNVDData " + // Ensure NVD data is used
-                           "--apiKey ${NVD_API_KEY}" // Use the injected API key
-                        
-                        archiveArtifacts artifacts: 'dependency-check-report/dependency-check-report.html', fingerprint: true
-                        archiveArtifacts artifacts: 'dependency-check-report/dependency-check-report.xml', fingerprint: true
-                    }
+                    // Remove the withCredentials block and any reference to --apiKey
+                    sh """
+                        # Assuming you have dependency-check installed or available in your Jenkins agent's PATH
+                        dependency-check.sh \\
+                            --project "ynt-app" \\
+                            --scan . \\
+                            --format HTML \\
+                            --out "${WORKSPACE}/owasp-dependency-check-report"
+                            # Removed: --apiKey ${NVD_API_KEY}
+                    """
                 }
             }
             post {
+                always {
+                    // This post-stage echo indicates a scan was performed,
+                    // regardless of whether vulnerabilities were found.
+                    echo "OWASP Dependency-Check scan completed. Review reports."
+                }
                 failure {
+                    // Optionally, fail the pipeline if critical vulnerabilities are found,
+                    // or just log a warning.
                     echo "OWASP Dependency-Check found vulnerabilities. Review reports."
-                    // Optionally, add logic here to fail the build based on report parsing
+                    // You might add an 'error' step here if you have a policy to fail on certain findings.
                 }
             }
         }
