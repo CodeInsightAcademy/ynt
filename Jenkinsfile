@@ -41,18 +41,18 @@ pipeline {
             steps {
                 script {
                     echo "Installing Python dependencies..."
-                    // Use a shebang to explicitly tell Jenkins to use bash for this block
-                    // This often helps avoid issues with default shell behavior and dotfiles
                     sh '''#!/bin/bash -ex
+                        # Create the virtual environment
                         python3 -m venv venv
-                        . venv/bin/activate
 
-                        # Ensure pip is up-to-date within the virtual environment
-                        pip install --upgrade pip
+                        # Explicitly use the pip executable from the virtual environment
+                        ./venv/bin/pip install --upgrade pip
+                        ./venv/bin/pip install -r requirements.txt
                         
-                        # Install project dependencies
-                        pip install -r requirements.txt
                         
+                        # ./venv/bin/pytest
+                        
+                        # ./venv/bin/python your_app_setup_script.py
                     '''
                 }
             }
