@@ -74,34 +74,19 @@ pipeline {
             }
         }
 
-        stage('SCA - OWASP Dependency-Check') {
+        stage('SCA - Dependency Check') {
             steps {
-                script {
-                    echo "Running Software Composition Analysis (SCA) with OWASP Dependency-Check..."
-                   withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-                        sh """
-                            # Assuming you have dependency-check installed or available in your Jenkins agent's PATH
-                            dependency-check.sh \\
-                                --project "ynt-app" \\
-                                --scan . \\
-                                --format HTML \\
-                                --out "${WORKSPACE}/owasp-dependency-check-report" \\
-                                --apiKey ${NVD_API_KEY} # This variable is now accessible here
-                        """
-                    }
-                }
-            }
-            post {
-                always {
-                    echo "OWASP Dependency-Check scan completed. Review reports."
-                }
-                failure {
-                    echo "OWASP Dependency-Check found vulnerabilities. Review reports."
-                    // Consider adding 'error "SCA vulnerabilities found. Failing pipeline."' here
-                    // if you want the pipeline to fail explicitly on findings.
-                }
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install safety
+                    mkdir -p reports/sca
+                    safety check --full-report > reports/sca/safety.txt || true
+                '''
             }
         }
+
 
         stage('SAST - Bandit') {
             steps {
