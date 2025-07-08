@@ -36,7 +36,7 @@ pipeline {
             }
         }
 
-        stages {
+        
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -51,6 +51,7 @@ pipeline {
                 '''
             }
         }
+        
 
 
         stage('Unit Tests') {
