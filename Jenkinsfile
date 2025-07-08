@@ -41,15 +41,12 @@ pipeline {
             steps {
                 script {
                     echo "Installing Python dependencies..."
-                    // Create a virtual environment
-                    sh 'python3 -m venv venv'
-                    
                     sh '''
+                        python3 -m venv venv
                         . venv/bin/activate
                         pip install --upgrade pip
                         pip install -r requirements.txt
-                        # You can also run other Python-related build steps here, e.g.,
-                        # python setup.py build
+                        
                     '''
                 }
             }
