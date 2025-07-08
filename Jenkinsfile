@@ -37,18 +37,23 @@ pipeline {
         }
 
         
-        stage('Install Dependencies') {
+        stage('Install Dependencies & Build') {
             steps {
-                sh '''
-                    apt-get update && \
-                    apt-get install -y python3 python3-pip python3-venv git
-
-                    python3 -m venv venv
-                    . venv/bin/activate
-
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+                script {
+                    echo "Installing Python dependencies..."
+                    
+                    // Create a virtual environment
+                    sh 'python3 -m venv venv'
+                    
+                    sh '''
+                        source venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                        # You can also run other Python-related build steps here, e.g.,
+                        # python setup.py build
+                    '''
+                    
+                }
             }
         }
         
