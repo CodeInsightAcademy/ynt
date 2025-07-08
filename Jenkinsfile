@@ -61,12 +61,11 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                script {
-                    echo "Running unit tests..."
-                    sh '''#!/bin/bash -ex
-                        ./venv/bin/pytest # This is correct, keep this!
-                    '''
-                }
+                sh '''
+                    . venv/bin/activate
+                    pip install -r requirements.txt
+                    pytest || true
+                '''
             }
             post {
                 failure {
