@@ -36,18 +36,22 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies & Build') {
+        stages {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    echo "Installing Python dependencies..."
-                    // Assume a requirements.txt for Python applications
-                    sh 'pip install -r requirements.txt'
-                    // Add your build command here if any (e.g., frontend build, backend compilation)
-                    // For a simple Python web app, 'pip install' might be enough
-                    // sh 'python setup.py build' // Example if you have a setup.py
-                }
+                sh '''
+                    apt-get update && \
+                    apt-get install -y python3 python3-pip python3-venv git
+
+                    python3 -m venv venv
+                    . venv/bin/activate
+
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
             }
         }
+
 
         stage('Unit Tests') {
             steps {
